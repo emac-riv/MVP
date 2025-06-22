@@ -1,8 +1,15 @@
-﻿namespace Persistance.Models
+﻿namespace Persistance.Models;
+
+public class RepositoryResult
+ {
+    public bool Success { get; set; }
+
+    public string? Error { get; set; }
+ }
+
+
+public class RepositoryResult<T> : RepositoryResult
 {
-    public class RepositoryResult
-    {
-        public bool Success { get; set; }
-        public string? Error { get; set; }
-    }
+    public T? Result { get; set; }
+
 }
