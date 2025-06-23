@@ -1,12 +1,14 @@
 using Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Persistance.Contexts;
+using Persistance.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
+builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 
 var app = builder.Build();

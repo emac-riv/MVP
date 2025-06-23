@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Persistance.Contexts;
 using Persistance.Models;
+using System.Linq.Expressions;
 
 
 namespace Persistance.Repositories;
@@ -16,7 +17,63 @@ namespace Persistance.Repositories;
             _table = _context.Set<TEntity>();
         }
 
-    public async Task<RepositoryResult> AddAsync(TEntity entity)
+    public virtual async Task<RepositoryResult<IEnumerable<TEntity>>> GetAllAsync(TEntity entity)
+    {
+        try
+        {
+            var entities = await _table.ToListAsync();
+
+            return new RepositoryResult<IEnumerable<TEntity>>
+            {
+                Success = true, 
+                Result = entities,
+            };
+
+        }
+        catch (Exception ex)
+        {
+            return new RepositoryResult<IEnumerable<TEntity>>
+            {
+                Success = false,
+                Error = ex.Message,
+            };
+        }
+    }
+
+    public  virtual async Task<RepositoryResult<TEntity?>> GetAsync(Expression<Func<TEntity, bool>> expression)
+    {
+        try
+        {
+            var entity = await _table.FirstOrDefaultAsync(expression) ?? throw new Exception("Not found");
+            return new RepositoryResult<TEntity?>
+            {
+                Success = true,
+                Result = entity,
+            };
+
+        }
+        catch (Exception ex)
+        {
+            return new RepositoryResult<TEntity?>
+            {
+                Success = false,
+                Error = ex.Message,
+            };
+        }
+    }
+
+    public virtual async Task<RepositoryResult<TEntity?>> AlreadyExistsAsync(Expression<Func<TEntity, bool>> expression)
+    {
+
+        var result = await _table.AnyAsync(expression);
+         return new RepositoryResult<TEntity?>
+         {
+             Success = result,
+         };
+
+    }
+
+    public virtual async Task<RepositoryResult> AddAsync(TEntity entity)
     {
         try
         {
@@ -39,7 +96,7 @@ namespace Persistance.Repositories;
         }
     }
 
-    public async Task<RepositoryResult> UpdateAsync(TEntity entity)
+    public virtual async Task<RepositoryResult> UpdateAsync(TEntity entity)
     {
         try
         {
@@ -62,7 +119,7 @@ namespace Persistance.Repositories;
         }
     }
 
-    public async Task<RepositoryResult> DeleteAsync(TEntity entity)
+    public virtual async Task<RepositoryResult> DeleteAsync(TEntity entity)
     {
         try
         {
@@ -85,4 +142,3 @@ namespace Persistance.Repositories;
         }
     }
 }
-
